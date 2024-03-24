@@ -60,6 +60,10 @@ variable "instance_type" {
   description = "value of instance type"
 }
 
+variable "public_key_location" {
+  description = "value of public key location"
+}
+
 resource "aws_vpc" "myapp-vpc" {
   cidr_block = var.vpc_cidr_block
   tags = {
@@ -155,6 +159,14 @@ data "aws_ami" "latest-amazon-linux-image" {
   }
 }
 
+
+resource "aws_key_pair" "ssh-key-pair" {
+  key_name   = "server-key-pair"
+  public_key = file(var.public_key_location)
+
+}
+
+
 resource "aws_instance" "myapp-server" {
   ami                         = data.aws_ami.latest-amazon-linux-image.id
   instance_type               = var.instance_type
@@ -162,7 +174,7 @@ resource "aws_instance" "myapp-server" {
   subnet_id                   = aws_subnet.myapp-subnet-1.id
   vpc_security_group_ids      = [aws_security_group.myapp-sg.id]
   associate_public_ip_address = true
-  key_name                    = "server-key-pair"
+  key_name                    = aws_key_pair.ssh-key-pair.key_name
   # user_data                   = file("entry-script.sh")
   tags = {
     Name = "${var.env_prefix}-server"
@@ -174,3 +186,7 @@ output "aws-ami" {
   value = data.aws_ami.latest-amazon-linux-image.id
 }
 
+
+output "ec2-public-ip" {
+  value = aws_instance.myapp-server.public_ip
+}
