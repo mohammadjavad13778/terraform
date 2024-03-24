@@ -8,3 +8,7 @@
 
 # tf variables files (may include sesitive data)
 *.tfvars
+
+
+# AWSCLI Commands 
+Commands.md
