@@ -1,7 +1,7 @@
 
 # Configure the AWS Provider
 provider "aws" {
-  region                      = "us-east-1"
+  region                      = "eu-west-3"
   s3_use_path_style           = false
   skip_credentials_validation = true
   skip_metadata_api_check     = true
@@ -32,6 +32,46 @@ provider "aws" {
     ssm            = "http://localhost:4566"
     stepfunctions  = "http://localhost:4566"
     sts            = "http://localhost:4566"
+  }
+}
+
+
+variable "vpc_cidr_block" {
+  description = "value of vpc cidr block"
+}
+
+variable "subnet_cidr_block" {
+  description = "value of subnet cidr block"
+}
+
+variable "availability_zone" {
+  description = "value of availability zone"
+  # default     = "us-east-1a"
+
+}
+
+variable "env_prefix" {
+  description = "value of env prefix"
+  # default     = "dev"
+
+}
+
+
+resource "aws_vpc" "myapp-vpc" {
+  cidr_block = var.vpc_cidr_block
+  tags = {
+    Name = "${var.env_prefix}-vpc"
+  }
+}
+
+
+
+resource "aws_subnet" "myapp-subnet-1" {
+  vpc_id            = aws_vpc.myapp-vpc.id
+  cidr_block        = var.subnet_cidr_block
+  availability_zone = var.availability_zone
+  tags = {
+    Name = "${var.env_prefix}-subnet-1"
   }
 }
 
