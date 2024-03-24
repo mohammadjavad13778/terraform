@@ -56,6 +56,9 @@ variable "my_ip_address" {
   description = "value of my ip address"
 }
 
+variable "instance_type" {
+  description = "value of instance type"
+}
 
 resource "aws_vpc" "myapp-vpc" {
   cidr_block = var.vpc_cidr_block
@@ -135,3 +138,39 @@ resource "aws_security_group" "myapp-sg" {
   }
 
 }
+
+
+data "aws_ami" "latest-amazon-linux-image" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+resource "aws_instance" "myapp-server" {
+  ami                         = data.aws_ami.latest-amazon-linux-image.id
+  instance_type               = var.instance_type
+  availability_zone           = var.availability_zone
+  subnet_id                   = aws_subnet.myapp-subnet-1.id
+  vpc_security_group_ids      = [aws_security_group.myapp-sg.id]
+  associate_public_ip_address = true
+  key_name                    = "server-key-pair"
+  # user_data                   = file("entry-script.sh")
+  tags = {
+    Name = "${var.env_prefix}-server"
+  }
+}
+
+
+output "aws-ami" {
+  value = data.aws_ami.latest-amazon-linux-image.id
+}
+

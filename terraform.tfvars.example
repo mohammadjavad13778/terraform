@@ -1,0 +1,7 @@
+# Example of terraform.tfvars file
+vpc_cidr_block = "x.x.x.x/16"
+subnet_cidr_block = "x.x.x.x/24"
+availability_zone = "eu-west-3b"
+env_prefix = "dev"
+my_ip_address = "YOUR_IP_ADDRESS/32"
+instance_type = "t2.micro"
